@@ -20,14 +20,22 @@ model = MyIris()
 optimizer = optim.SGD(model.parameters(), lr=0.1)
 criterion = nn.CrossEntropyLoss()
 
-model.train()  # つける必要はないが、学習開始を明示する意味で書くことがある
+DATA_SIZE = 75
+BATCH_SIZE = 25
+model.train()
 for epoch in range(1000):
-    output = model(xtrain)
-    loss = criterion(output, ytrain)
-    print(epoch, loss.item())
-    optimizer.zero_grad()
-    loss.backward()
-    optimizer.step()
+    idx = np.random.permutation(DATA_SIZE)
+    for i in range(0, DATA_SIZE, BATCH_SIZE):
+        xtm = xtrain[idx[i:(i+BATCH_SIZE) if (i + BATCH_SIZE)
+                         < DATA_SIZE else DATA_SIZE]]
+        ytm = ytrain[idx[i:(i+BATCH_SIZE) if (i + BATCH_SIZE)
+                         < DATA_SIZE else DATA_SIZE]]
+        output = model(xtm)
+        loss = criterion(output, ytm)
+        print(epoch, loss.item())
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
 
 torch.save(model.state_dict(), 'myiris.model')
 model.load_state_dict(torch.load('myiris.model'))
